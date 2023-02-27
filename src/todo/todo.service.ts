@@ -2,35 +2,39 @@ import { Injectable } from '@nestjs/common';
 import { TodoModel } from './todo.model';
 import { CreateTodoDto } from './dtos/create-todo.dto';
 import { EditTodoDto } from './dtos/edit-todo.dto';
+import { Statuts } from './enums/statuts.enum';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, ReturningStatementNotSupportedError } from 'typeorm';
 
 @Injectable()
 export class TodoService {
-    find(id : number, todos : TodoModel[]) : TodoModel | null{
-        const temp = todos.filter(x => x.id == id) ;
-        if(temp.length == 0)
-            return null ;
-        return temp[0] ;
+    private todos : TodoModel[] = [] ;
+    constructor(@InjectRepository(TodoModel) private readonly todoRepo : Repository<TodoModel>) {}
+    getTodos(){
+        return this.todoRepo.find() ;
     }
-    delete(id : number, todos : TodoModel[]) : TodoModel[]{
-        return todos.filter(x => x.id != id) ;
+    async find(id : number) {
+        return await this.todoRepo.findOne({where : {id}}) ;
     }
-    create(body : CreateTodoDto, id : number, todos : TodoModel[]) : TodoModel[] {
-        const todo = new TodoModel() ;
-        todo.description = body.description ;
-        todo.name = body.name ;
-        todo.dateCreation = new Date() ;
-        todo.id = id ;
-        todos.push(todo) ;
-        return todos ;
+    delete(id : number) : TodoModel[]{
+        return this.todos.filter(x => x.id != id) ;
     }
-    edit(body : EditTodoDto, id : number, todos : TodoModel[]) : TodoModel[] {
-        const todo = todos.filter(x => x.id == id)[0] ;
+    async create(body : CreateTodoDto, id : string) {
+        const todo = this.todoRepo.create( {
+            ...body,
+            // dateCreation : new Date(),
+            statut : Statuts.EnCours
+        }) ;
+        return await this.todoRepo.save(todo) ;
+    }
+    edit(body : EditTodoDto, id : number) : TodoModel[] {
+        const todo = this.todos.filter(x => x.id == id)[0] ;
         if(!todo)
-            return todos;
+            return this.todos;
         todo.description = body.description ;
         todo.statut = body.statut ;
         todo.name = body.name ;
-        return todos.map(prevTodo => {
+        return this.todos.map(prevTodo => {
             if (prevTodo.id === id) {
             return todo;
             }

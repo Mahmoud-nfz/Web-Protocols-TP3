@@ -1,6 +1,7 @@
 import { Global, Injectable, Module } from '@nestjs/common';
 // import { CommonService } from './common.service';
 import { randomUUID } from 'crypto';
+import { Model } from './Model';
 
 const uuidProvider = {
   'provide' : 'UUID',
@@ -10,7 +11,7 @@ const uuidProvider = {
 @Module({
   providers: [uuidProvider],
   exports: [
-    uuidProvider
+    uuidProvider,
   ]
 })
 export class CommonModule {}
