@@ -12,6 +12,10 @@ export class UsersService {
         return await this.userRepo.findOne({where : {id}}) ;
     }
 
+    async countUsers(){
+        return await this.userRepo.count() ;
+    }
+
     async findOne(body : CreateUserDto) {
         return await this.userRepo.findOne({where : body}) ;
     }

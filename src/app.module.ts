@@ -11,13 +11,17 @@ import { UserModel } from './users/user.model';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthenticationMiddleware } from './authentication.middleware';
 import { TodoController } from './todo/todo.controller';
+import { CvsModule } from './cvs/cvs.module';
+import { Cv } from './cvs/entities/cv.entity';
+import { SkillsModule } from './skills/skills.module';
+import { Skill } from './skills/entities/skill.entity';
 
 @Module({
   imports: [TodoModule, CommonModule,
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'db.sqlite',
-      entities:[TodoModel,UserModel],
+      entities:[TodoModel,UserModel,Cv,Skill],
       synchronize: true,
       logging:true
     }),
@@ -26,7 +30,7 @@ import { TodoController } from './todo/todo.controller';
       global: true,
       secret: "dasdsaadsdsaadsdsadsa",
       signOptions: { expiresIn: '3600s' },
-    })
+    }), CvsModule, SkillsModule
   ],
   controllers: [AppController],
   providers: [AppService,AuthenticationMiddleware],
